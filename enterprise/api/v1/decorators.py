@@ -89,3 +89,41 @@ def require_at_least_one_query_parameter(*query_parameter_names):
             return view(request, *args, **kwargs)
         return wrapper
     return outer_wrapper
+
+def is_user_authorised(view):
+    """
+    Ensure the user making the API request is staff or belong to enterprise_enrollment_api_access group.
+
+    This decorator attempts to find the requesting user is either staff or belong to 'enterprise_enrollment_api_access'
+    group. It will return a PermissionDenied error if the user is not authorized to access the view.
+
+    Usage::
+        @is_user_authorised()
+        def my_view(request):
+            # Some functionality ...
+
+        OR
+
+        class MyView(View):
+            ...
+            @method_decorator(is_user_authorised)
+            def get(self, request):
+                # Some functionality ...
+    """
+    @wraps(view)
+    def wrapper(request, *args, **kwargs):
+        """
+        Checks for the requesting user is authorised to access the view, calls the view function
+        if one exists, raises PermissionDenied if not.
+        """
+        user = request.user
+        if user.is_staff or user.groups.filter(name='enterprise_enrollment_api_access').exists():
+            return view(request, *args, **kwargs)
+        else:
+            raise PermissionDenied(
+                'User {username} is not authorised to access the view.'.format(
+                    username=user.username
+                )
+            )
+
+    return wrapper
