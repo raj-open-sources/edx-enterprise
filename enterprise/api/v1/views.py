@@ -26,8 +26,8 @@ from enterprise.api.filters import EnterpriseCustomerUserFilterBackend, UserFilt
 from enterprise.api.pagination import get_paginated_response
 from enterprise.api.throttles import ServiceUserThrottle
 from enterprise.api.v1 import serializers
-from enterprise.api.v1.decorators import enterprise_customer_required, is_user_authorised, \
-    require_at_least_one_query_parameter
+from enterprise.api.v1.permissions import IsAdminUserOrInGroup
+from enterprise.api.v1.decorators import enterprise_customer_required, require_at_least_one_query_parameter
 
 from enterprise.api_client.discovery import CourseCatalogApiClient
 from enterprise.constants import COURSE_KEY_URL_PATTERN
@@ -97,6 +97,7 @@ class EnterpriseCustomerViewSet(EnterpriseReadWriteModelViewSet):
     serializer_class = serializers.EnterpriseCustomerSerializer
 
     USER_ID_FILTER = 'enterprise_customer_users__user_id'
+    ENTERPRISE_API_ALLOWED_GROUPS = ['enterprise_enrollment_api_access', ]
     FIELDS = (
         'uuid', 'name', 'catalog', 'active', 'site', 'enable_data_sharing_consent',
         'enforce_data_sharing_consent',
@@ -173,8 +174,7 @@ class EnterpriseCustomerViewSet(EnterpriseReadWriteModelViewSet):
         serializer.update_enterprise_courses(enterprise_customer, catalog_id=enterprise_customer.catalog)
         return get_paginated_response(serializer.data, request)
 
-    @method_decorator(is_user_authorised)
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],  permission_classes=[IsAdminUserOrInGroup])
     def course_enrollments(self, request, pk):  # pylint: disable=invalid-name,unused-argument
         """
         Creates a course enrollment for an EnterpriseCustomerUser.
