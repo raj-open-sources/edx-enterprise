@@ -1395,8 +1395,13 @@ class EnterpriseCustomerReportingConfiguration(TimeStampedModel):
         (6, 'Sunday'),
     )
 
-    enterprise_customer = models.OneToOneField(
-        EnterpriseCustomer, blank=False, null=False, verbose_name=_("Enterprise Customer")
+    enterprise_customer = models.ForeignKey(
+        EnterpriseCustomer,
+        related_name="reporting_configurations",
+        on_delete=models.deletion.CASCADE,
+        blank=False,
+        null=False,
+        verbose_name=_("Enterprise Customer")
     )
     active = models.BooleanField(blank=False, null=False, verbose_name=_("Active"))
     delivery_method = models.CharField(

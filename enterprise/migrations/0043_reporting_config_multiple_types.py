@@ -11,6 +11,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name='enterprisecustomerreportingconfiguration',
+            name='enterprise_customer',
+            field=models.ForeignKey(related_name='reporting_configurations', verbose_name='Enterprise Customer', to='enterprise.EnterpriseCustomer'),
+        ),
         migrations.AddField(
             model_name='enterprisecustomerreportingconfiguration',
             name='data_type',
