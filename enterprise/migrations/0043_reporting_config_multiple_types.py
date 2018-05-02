@@ -26,4 +26,8 @@ class Migration(migrations.Migration):
             name='report_type',
             field=models.CharField(default='csv', help_text='The type this report should be sent as, e.g. CSV.', max_length=20, verbose_name='Report Type', choices=[('csv', 'csv')]),
         ),
+        migrations.AlterUniqueTogether(
+            name='enterprisecustomerreportingconfiguration',
+            unique_together=set([('enterprise_customer', 'data_type')]),
+        ),
     ]
